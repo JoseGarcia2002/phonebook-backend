@@ -1,6 +1,8 @@
+require("dotenv").config()
 const express = require('express');
 const morgan = require('morgan');
 const cors = require("cors");
+const Contact = require("./models/contact")
 
 morgan.token('body', function (req, res) {return JSON.stringify(req.body)})
 
@@ -15,6 +17,7 @@ const randomId = () => {
     return Math.floor(Math.random()*(9*10**8))
 }
 
+/*
 let persons = [
     { 
       "id": 1,
@@ -37,6 +40,7 @@ let persons = [
       "number": "39-23-6423122"
     }
 ]
+*/
 
 app.route("/")
     .get((req, res) => {
@@ -53,40 +57,56 @@ app.route("/info")
 
 app.route("/api/persons")
     .get((req, res) => {
-        res.json(persons)
+        Contact.find({}).then(contacts => {
+            res.json(contacts)
+        })
     })
     .post((req, res) => {
         const person = req.body
         if (!(person.name && person.number)) {
             return res.status(400).json({"error":"name and number are required"})
         }
-        let repeat = false
-        persons.forEach(per => {
-            if (per.name === person.name) {
-                repeat = true
+
+        Contact.find({}).then(persons => {
+            let repeat = false
+            persons.forEach(per => {
+                if (per.name === person.name) {
+                    repeat = true
+                }
+            })
+            if (repeat) {
+                res.status(400).json({"error":"name must be unique"}).end()
+            }
+            else {
+                const newPerson = new Contact({
+                    name: person.name, 
+                    number: person.number
+                })
+    
+                newPerson.save().then(savedContact => {
+                    res.json(savedContact)
+                })
             }
         })
-        if (repeat) {
-            return res.status(400).json({"error":"name must be unique"})
-        }
-        const id = randomId()
-        
-        const newPerson = {...person, "id": id}
-        persons = persons.concat(newPerson)
-        res.json(newPerson)
     })
 
 app.route("/api/persons/:id")
     .get((req, res) => {
-        const id = Number(req.params.id)
-        const note = persons.filter(note => note.id === id)
+        const id = req.params.id
 
-        if (note) {
-            res.json(note)
-        }
-        else {
-            res.status(400).end()
-        }
+        Contact.findById(id)
+            .then(foundNote => {
+                if (foundNote) {
+                    res.json(foundNote)
+                }
+                else {
+                    res.status(404).end()
+                }
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(400).send({error: "request if of the wrong form"})
+            })
     })
     .delete((req, res) => {
         const id = Number(req.params.id)
