@@ -109,10 +109,15 @@ app.route("/api/persons/:id")
             })
     })
     .delete((req, res) => {
-        const id = Number(req.params.id)
-        persons = persons.filter(person => person.id !== id)
+        const id = req.params.id
 
-        res.status(204).end()
+        Contact.findByIdAndRemove(id)
+            .then(result => {
+                res.status(204).end()
+            })
+            .catch(err => {
+                console.log(err)
+            })
     })
 
 const PORT = process.env.PORT || 3001; 
