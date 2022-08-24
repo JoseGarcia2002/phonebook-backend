@@ -1,23 +1,20 @@
 const mongoose = require('mongoose');
 
-if (process.argv.length < 3) {
-    console.log("Please provide the password as an argument")
-    process.exit(1)
-}
-
-const password = process.argv[2]
-const database = "phonebook"
-
-const url = `mongodb+srv://josegarcia2002:${password}@cluster0.3mssxqs.mongodb.net/${database}?retryWrites=true&w=majority`
+const url = process.env.MONGODB_URI
 
 const contactSchema = new mongoose.Schema({
     name: String,
     number: String
 })
 
+mongoose.connect()
+
 const Contact = mongoose.model("contact", contactSchema)
 
+
+/*
 const displayAll = process.argv.length < 4
+
 
 mongoose
     .connect(url)
@@ -52,3 +49,5 @@ mongoose
     .catch(err => {
         console.log(err)
     })
+
+*/
