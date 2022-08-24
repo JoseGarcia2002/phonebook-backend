@@ -50,9 +50,12 @@ app.route("/")
 app.route("/info")
     .get((req, res) => {
         const date = new Date().toString()
-        const length = persons.length
 
-        res.send(`<p>Phone book has info for ${length} people</p> <p>${date}</p>`)
+        Contact.find({})
+            .then(contacts => {
+                const length = contacts.length
+                res.send(`<p>Phone book has info for ${length} people</p> <p>${date}</p>`)
+            })
     })
 
 app.route("/api/persons")
@@ -118,6 +121,22 @@ app.route("/api/persons/:id")
             .catch(err => {
                 console.log(err)
             })
+    })
+    .put((req, res, next) => {
+        const id = req.params.id
+        const body = req.body
+
+        const newContact = {
+            name: body.name,
+            number: body.number, 
+            id: id
+        }
+
+        Contact.findByIdAndUpdate(id, newContact, {new: true})
+            .then(updatedContact => {
+                res.json(updatedContact)
+            })
+            .catch(err => next(err))
     })
 
 const errorHandler = (err, req, res, next) => {
