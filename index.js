@@ -131,7 +131,7 @@ app.route("/api/persons/:id")
             id: id
         }
 
-        Contact.findByIdAndUpdate(id, newContact, {new: true})
+        Contact.findByIdAndUpdate(id, newContact, {new: true, runValidators: true, context: "query"})
             .then(updatedContact => {
                 res.json(updatedContact)
             })
