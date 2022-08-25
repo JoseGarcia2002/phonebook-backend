@@ -64,7 +64,7 @@ app.route("/api/persons")
             res.json(contacts)
         })
     })
-    .post((req, res) => {
+    .post((req, res, next) => {
         const person = req.body
 
         Contact.find({}).then(persons => {
@@ -83,9 +83,11 @@ app.route("/api/persons")
                     number: person.number
                 })
     
-                newPerson.save().then(savedContact => {
-                    res.json(savedContact)
-                })
+                newPerson.save()
+                    .then(savedContact => {
+                        res.json(savedContact)
+                    })
+                    .catch(err => next(err))
             }
         })
     })
@@ -140,7 +142,7 @@ const errorHandler = (err, req, res, next) => {
     if (err.name === 'CastError') {
         return res.status(400).send({error: "malformatted id "})
     }
-    else if (err.name === "ValidationErro") {
+    else if (err.name === "ValidationError") {
         return res.status(400).json({err: err.message})
     }
     next(err)
