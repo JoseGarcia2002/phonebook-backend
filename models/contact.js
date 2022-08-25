@@ -3,8 +3,16 @@ const mongoose = require('mongoose');
 const url = process.env.MONGODB_URI
 
 const contactSchema = new mongoose.Schema({
-    name: String,
-    number: String
+    name: {
+        type: String,
+        minLength:3,
+        required: true
+    },
+    number: {
+        type: String,
+        minLength: 8,
+        required: true
+    }
 })
 
 contactSchema.set("toJSON", {

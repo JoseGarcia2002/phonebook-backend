@@ -66,9 +66,6 @@ app.route("/api/persons")
     })
     .post((req, res) => {
         const person = req.body
-        if (!(person.name && person.number)) {
-            return res.status(400).json({"error":"name and number are required"})
-        }
 
         Contact.find({}).then(persons => {
             let repeat = false
@@ -140,8 +137,11 @@ app.route("/api/persons/:id")
     })
 
 const errorHandler = (err, req, res, next) => {
-    if (err.name = 'CastError') {
+    if (err.name === 'CastError') {
         return res.status(400).send({error: "malformatted id "})
+    }
+    else if (err.name === "ValidationErro") {
+        return res.status(400).json({err: err.message})
     }
     next(err)
 }
